@@ -5,6 +5,8 @@ from numpy import array
 from sympy import symbols, cos, sin, pi, simplify, sqrt, atan2
 from sympy.matrices import Matrix
 
+
+
 ### Create Symbols
 q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
 d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
@@ -81,6 +83,8 @@ T0_5 = simplify(T0_4 * T4_5)
 T0_6 = simplify(T0_5 * T5_6)
 T0_G = simplify(T0_6 * T6_G)
 
+print(T0_G)
+
 R_z = Matrix([
     [cos(pi),           -sin(pi),       0,                  0],
     [sin(pi),           cos(pi),        0,                  0],
@@ -97,15 +101,38 @@ R_y = Matrix([
 
 R_corr = simplify(R_z * R_y)
 
-sub = {q1: -2.01, q2: 0.82, q3: -3.33, q4: -1.83, q5: -0.96, q6: -3.80}
-print("T0_1 = ", T0_1.evalf(subs=sub))
-print("T0_2 = ", T0_2.evalf(subs=sub))
-print("T0_3 = ", T0_3.evalf(subs=sub))
-print("T0_4 = ", T0_4.evalf(subs=sub))
-print("T0_5 = ", T0_5.evalf(subs=sub))
-print("T0_6 = ", T0_6.evalf(subs=sub))
-print("T0_G = ", T0_G.evalf(subs=sub))
+def rot_x(q):
+    R_x = Matrix([[1, 0, 0], [0, cos(q), -sin(q)], [0, sin(q), cos(q)]])
 
-T_total = simplify(T0_G * R_corr)
+    return R_x
 
-print("T_Total = ", T_total.evalf(subs=sub))
+def rot_y(q):
+    R_y = Matrix([[cos(q), 0, sin(q)], [0, 1, 0], [-sin(q), 0, cos(q)]])
+
+    return R_y
+
+def rot_z(q):
+    R_z = Matrix([[cos(q), -sin(q), 0], [sin(q), cos(q), 0], [0, 0, 1]])
+
+    return R_z
+
+yaw, pitch, roll = symbols("yaw pitch roll")
+px, py, pz = symbols("px py pz")
+
+Rrpy = simplify(rot_z(yaw) * rot_y(pitch) * rot_x(roll)).row_join(Matrix([[px], [py], [pz]])).col_join(Matrix([[0,0,0,1]]))
+
+
+
+# sub = {q1: -2.01, q2: 0.82, q3: -3.33, q4: -1.83, q5: -0.96, q6: -3.80}
+# sub = {q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}
+# print("T0_1 = ", T0_1.evalf(subs=sub))
+# print("T0_2 = ", T0_2.evalf(subs=sub))
+# print("T0_3 = ", T0_3.evalf(subs=sub))
+# print("T0_4 = ", T0_4.evalf(subs=sub))
+# print("T0_5 = ", T0_5.evalf(subs=sub))
+# print("T0_6 = ", T0_6.evalf(subs=sub))
+# print("T0_G = ", T0_G.evalf(subs=sub))
+#
+# T_total = simplify(T0_G * R_corr)
+#
+# print("T_Total = ", T_total.evalf(subs=sub))
